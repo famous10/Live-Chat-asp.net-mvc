@@ -1,0 +1,72 @@
+﻿<style>
+ div.panel-body{
+     overflow:scroll;
+       background: linear-gradient(to right,#57c1eb 0%, #246fa8 100%);
+ }
+</style>
+
+<h2>chat</h2>
+<div class="chat-panel panel panel-default">
+    <div class="panel-heading">
+        WORLD FAMOUS
+        <i class="fa fa-paper-plane fa-fw"></i>
+    </div>
+    <div class="panel-body" id="chat" style="height:250px;">
+        <input type="hidden" id="displayname"/>
+
+        <p id="discussion"></p>
+    </div>
+
+    <div class="panel-footer">
+        <div class="input-group">
+            <input id="message" type="text" name="message" class="form-control input-sm" placeholder="type your message here..."/>
+
+            <span class="input-group-btn">
+                <input type="button" class="btn btn-warning btn-sm" id="sendmessage" value="send" />
+
+            </span>
+        </div>
+
+    </div>
+</div>
+
+@section scripts{
+
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+
+    <script src="~/signalr/hubs"></script>
+
+    <script>
+        $(function () {
+
+            var chat = $.connection.chatHub;
+            chat.client.addNewMessageToPage = function (name, message) {
+            
+               if(name === "famous") {
+                    $('#discussion').append('<P style="color:black; text-align:left; "><strong><img src="../image/famous.png" style="height: 40px; width: 30px;" alt="world famous" />'+ htmlEncode(name)
+                    + '</strong>: ' + htmlEncode(message) + '</p>');
+                }
+            else if(name != "famous"){
+                   $('#discussion').append('<P style="color:white; text-align:right; "><strong> <img src="../image/bo.png" style="height: 40px; width: 30px;" alt="bo" />' + htmlEncode(name)
+                    + '</strong>: ' + htmlEncode(message) + '</p>');
+                }
+  
+            };
+            $('#displayname').val(prompt('Enter your name:', ''));
+            $('#message').focus();
+            $.connection.hub.start().done(function () {
+                $('#sendmessage').click(function () {
+                    chat.server.send($('#displayname').val(), $('#message').val());
+                    $('#message').val('').focus();
+                });
+            });
+        });
+        function htmlEncode(value) {
+            var encodedvalue = $('<div />').text(value).html();
+            return encodedvalue;
+        }
+    </script>
+}
+
+ 
+
